@@ -1,0 +1,52 @@
+[
+  {
+    "id": "default-text-01",
+    "title": "Text表示 (基本)",
+    "code": "import androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\n\n@Composable\nfun MyText() {\n    Text(\"こんにちは、Jetpack Compose!\")\n}"
+  },
+  {
+    "id": "default-button-01",
+    "title": "Button (クリック処理付き)",
+    "code": "import androidx.compose.material3.Button\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\n\n@Composable\nfun MyButton() {\n    Button(onClick = { /* ここにクリック時の処理を書く */ }) {\n        Text(\"クリックしてね\")\n    }\n}"
+  },
+  {
+    "id": "default-textfield-01",
+    "title": "OutlinedTextField (テキスト入力)",
+    "code": "import androidx.compose.material3.OutlinedTextField\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.*\nimport androidx.compose.runtime.Composable\n\n@Composable\nfun MyTextField() {\n    var text by remember { mutableStateOf(\"\") }\n    OutlinedTextField(\n        value = text,\n        onValueChange = { text = it },\n        label = { Text(\"お名前\") }\n    )\n}"
+  },
+  {
+    "id": "default-column-01",
+    "title": "Column (縦並びレイアウト)",
+    "code": "import androidx.compose.foundation.layout.Column\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\n\n@Composable\nfun MyColumn() {\n    Column {\n        Text(\"アイテム 1\")\n        Text(\"アイテム 2\")\n        Text(\"アイテム 3\")\n    }\n}"
+  },
+  {
+    "id": "default-row-01",
+    "title": "Row (横並びレイアウト)",
+    "code": "import androidx.compose.foundation.layout.Row\nimport androidx.compose.foundation.layout.Spacer\nimport androidx.compose.foundation.layout.width\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.unit.dp\n\n@Composable\nfun MyRow() {\n    Row {\n        Text(\"左の要素\")\n        Spacer(modifier = Modifier.width(8.dp))\n        Text(\"右の要素\")\n    }\n}"
+  },
+  {
+    "id": "default-card-01",
+    "title": "Card (カード表示)",
+    "code": "import androidx.compose.foundation.layout.Column\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.material3.Card\nimport androidx.compose.material3.MaterialTheme\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.unit.dp\n\n@Composable\nfun MyCard() {\n    Card(modifier = Modifier.padding(8.dp)) {\n        Column(modifier = Modifier.padding(16.dp)) {\n            Text(\"カードタイトル\", style = MaterialTheme.typography.titleLarge)\n            Text(\"これはカードのコンテンツです。ここに詳細な情報を記述できます。\")\n        }\n    }\n}"
+  },
+  {
+    "id": "default-lazycolumn-01",
+    "title": "LazyColumn (シンプルなリスト)",
+    "code": "import androidx.compose.foundation.layout.padding\nimport androidx.compose.foundation.lazy.LazyColumn\nimport androidx.compose.foundation.lazy.items\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.unit.dp\n\n@Composable\nfun MyLazyColumn() {\n    val itemList = (1..20).map { \"アイテム $it\" }\n    LazyColumn {\n        items(itemList) { item ->\n            Text(text = item, modifier = Modifier.padding(8.dp))\n        }\n    }\n}"
+  },
+  {
+    "id": "default-scaffold-01",
+    "title": "Scaffold (基本画面構成)",
+    "code": "import androidx.compose.foundation.layout.Column\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.material.icons.Icons\nimport androidx.compose.material.icons.filled.Add\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.unit.dp\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun MyScaffoldScreen() {\n    Scaffold(\n        topBar = {\n            TopAppBar(\n                title = { Text(\"アプリ名\") },\n                colors = TopAppBarDefaults.topAppBarColors(\n                    containerColor = MaterialTheme.colorScheme.primaryContainer,\n                    titleContentColor = MaterialTheme.colorScheme.primary,\n                )\n            )\n        },\n        floatingActionButton = {\n            FloatingActionButton(onClick = { /* FABクリック処理 */ }) {\n                Icon(Icons.Filled.Add, \"追加ボタン\")\n            }\n        }\n    ) { innerPadding ->\n        Column(\n            modifier = Modifier\n                .padding(innerPadding)\n                .padding(16.dp)\n        ) {\n            Text(\"ここに画面のコンテンツを配置します\")\n        }\n    }\n}"
+  },
+  {
+    "id": "default-image-01",
+    "title": "Image (画像表示 - 基本)",
+    "code": "import androidx.compose.foundation.Image\nimport androidx.compose.foundation.layout.size\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.graphics.painter.ColorPainter\nimport androidx.compose.ui.graphics.Color\nimport androidx.compose.ui.unit.dp\n\n@Composable\nfun MyImage() {\n    // ローカルリソース (res/drawable) やネットワーク画像の場合は painterResource や rememberAsyncImagePainter を使用\n    Image(\n        painter = ColorPainter(Color.Gray), // プレースホルダーとして灰色を表示\n        contentDescription = \"サンプル画像\",\n        modifier = Modifier.size(128.dp)\n    )\n}"
+  },
+  {
+    "id": "default-modifier-01",
+    "title": "Modifier (基本的な装飾)",
+    "code": "import androidx.compose.foundation.background\nimport androidx.compose.foundation.layout.Box\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.foundation.layout.size\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.graphics.Color\nimport androidx.compose.ui.unit.dp\n\n@Composable\nfun MyModifiedBox() {\n    Box(\n        modifier = Modifier\n            .size(100.dp)\n            .background(Color.LightGray)\n            .padding(16.dp),\n        contentAlignment = Alignment.Center\n    ) {\n        Text(\"装飾されたBox\")\n    }\n}"
+  }
+]
