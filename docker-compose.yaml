@@ -8,4 +8,4 @@ services:
     volumes:
       - .:/workspace
     # デフォルトCMD（build --no-daemon）でアプリをビルド
-    command: ["build", "--no-daemon"] 
+    command: ["build", "packageDeb", "--no-daemon"] 

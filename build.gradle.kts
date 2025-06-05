@@ -29,6 +29,8 @@ dependencies {
     implementation("io.github.vinceglb:filekit-core:0.10.0-beta03")
     implementation("io.github.vinceglb:filekit-dialogs:0.10.0-beta03")
     implementation("io.github.vinceglb:filekit-dialogs-compose:0.10.0-beta03")
+    // JUnit 5 for unit testing
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 }
 
 compose.desktop {
@@ -39,7 +41,22 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Deb) // MSI を削除。EXEもインストーラーなので削除検討。
             packageName = "SnippetButton"
             packageVersion = "1.0.0"
+            // アイコンファイルを各プラットフォーム別に指定
+            linux {
+                iconFile.set(file("src/main/resources/snippetbutton.png"))
+            }
+            windows {
+                iconFile.set(file("src/main/resources/snippetbutton.png"))
+            }
+            macOS {
+                iconFile.set(file("src/main/resources/snippetbutton.png"))
+            }
             // Windows 向けの jpackage 引数設定は createDistributable タスクに期待するため一旦削除
         }
     }
+}
+
+// Enable JUnit Platform for running tests
+tasks.test {
+    useJUnitPlatform()
 }
