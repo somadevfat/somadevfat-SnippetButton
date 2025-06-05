@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace
+    # デフォルトCMD（build --no-daemon）でアプリをビルド
+    command: ["build", "packageDeb", "--no-daemon"] 

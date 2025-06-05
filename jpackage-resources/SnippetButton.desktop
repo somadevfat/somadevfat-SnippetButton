@@ -1,0 +1,6 @@
+   [Desktop Entry]
+   Name=SnippetButton
+   Exec=snippetbutton
+   Icon=SnippetButton
+   Type=Application
+   Categories=Utility;

@@ -4,10 +4,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Add // スニペット追加用アイコン
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FolderOpen // ファイルインポート用アイコン
+import androidx.compose.material.icons.filled.Refresh // リセット用アイコン
+import androidx.compose.material.icons.filled.DeleteSweep // スニペット全削除用アイコン
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,10 +23,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.path
+import androidx.compose.ui.res.useResource
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import javax.swing.JFileChooser
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
@@ -88,6 +91,9 @@ fun importSnippetsFromFile(
     }
 }
 
+// リソース取得用のダミークラス
+object ResourceLoader
+
 // スニペットをJSONファイルから読み込む関数
 fun loadSnippets(): List<Snippet> {
     try {
@@ -97,7 +103,9 @@ fun loadSnippets(): List<Snippet> {
         } else {
             println("ユーザーのスニペットファイルが見つかりません。デフォルトスニペットを読み込みます。")
             val defaultSnippetsJson = try {
+                // クラスローダー経由でリソース取得、見つからない場合は ResourceLoader 経由で取得
                 val inputStream = Thread.currentThread().contextClassLoader.getResourceAsStream("default_snippets.json")
+                    ?: ResourceLoader::class.java.getResourceAsStream("/default_snippets.json")
                 inputStream?.bufferedReader()?.use { it.readText() }
             } catch (e: Exception) {
                 println("デフォルトスニペットの読み込みに失敗しました: ${e.message}")
@@ -131,7 +139,8 @@ fun App() {
     var editingSnippet by remember { mutableStateOf<Snippet?>(null) }
     var showImportFeedback by remember { mutableStateOf<String?>(null) }
     var importFilePathInput by remember { mutableStateOf("") }
-    var showFilePicker by remember { mutableStateOf(false) } // FileKit FilePicker の表示状態
+    var showResetDialog by remember { mutableStateOf(false) }
+    var showClearAllDialog by remember { mutableStateOf(false) }
 
     val clipboardManager = LocalClipboardManager.current
 
@@ -139,24 +148,6 @@ fun App() {
         it.title.contains(searchQuery, ignoreCase = true) ||
                 it.code.contains(searchQuery, ignoreCase = true)
     }
-
-    // FileKit のファイルピッカーランチャーを準備
-    val filePickerLauncher = rememberFilePickerLauncher(
-        type = FileKitType.File(listOf("json")), // JSONファイルのみフィルタリング
-        title = "スニペットJSONファイルを選択", // ダイアログのタイトル
-        // initialDirectory = System.getProperty("user.home"), // 初期ディレクトリ (任意)
-        onResult = { platformFile: PlatformFile? -> // PlatformFile? が返る
-            platformFile?.let { file ->
-                val selectedFilePath = Paths.get(file.path) // PlatformFileからパスを取得
-                importSnippetsFromFile(selectedFilePath, snippets) { newSnippets, feedback ->
-                    showImportFeedback = feedback
-                    if (newSnippets != null) {
-                        snippets = newSnippets
-                    }
-                }
-            }
-        }
-    )
 
     Scaffold(
         topBar = {
@@ -167,12 +158,32 @@ fun App() {
                         editingSnippet = null
                         showDialog = true
                     }) {
-                        Icon(Icons.Filled.Add, contentDescription = "新しいスニペットを追加")
+                        Icon(Icons.Filled.Add, contentDescription = "スニペットを追加する")
                     }
                     IconButton(onClick = {
-                        filePickerLauncher.launch() // FileKit ランチャーを起動
+                        // JSONファイルのみをフィルタする JFileChooser
+                        val chooser = JFileChooser().apply {
+                            fileFilter = javax.swing.filechooser.FileNameExtensionFilter("JSONファイル", "json")
+                        }
+                        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                            val file = chooser.selectedFile.toPath()
+                            importSnippetsFromFile(file, snippets) { newSnippets, feedback ->
+                                showImportFeedback = feedback
+                                if (newSnippets != null) {
+                                    snippets = newSnippets
+                                }
+                            }
+                        }
                     }) {
-                        Icon(Icons.Filled.Add, contentDescription = "ファイルを選択してインポート (アイコンは仮)")
+                        Icon(Icons.Filled.FolderOpen, contentDescription = "JSONファイルをインポートする")
+                    }
+                    IconButton(onClick = {
+                        showResetDialog = true
+                    }) {
+                        Icon(Icons.Filled.Refresh, contentDescription = "スニペットを初期化する")
+                    }
+                    IconButton(onClick = { showClearAllDialog = true }) {
+                        Icon(Icons.Filled.DeleteSweep, contentDescription = "すべてのスニペットを削除する")
                     }
                 }
             )
@@ -246,6 +257,46 @@ fun App() {
                 saveSnippets(snippets)
                 showDialog = false
                 editingSnippet = null
+            }
+        )
+    }
+
+    // リセット確認ダイアログ
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("確認") },
+            text = { Text("スニペットを初期状態に戻します。よろしいですか？") },
+            confirmButton = {
+                TextButton(onClick = {
+                    try { Files.deleteIfExists(snippetsFilePath) } catch (_: Exception) {}
+                    snippets = loadSnippets()
+                    showImportFeedback = "デフォルトスニペットにリセットしました。"
+                    showResetDialog = false
+                }) { Text("はい") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) { Text("いいえ") }
+            }
+        )
+    }
+
+    // 全スニペット削除確認ダイアログ
+    if (showClearAllDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearAllDialog = false },
+            title = { Text("確認") },
+            text = { Text("すべてのスニペットを削除します。よろしいですか？") },
+            confirmButton = {
+                TextButton(onClick = {
+                    snippets = emptyList()
+                    try { Files.deleteIfExists(snippetsFilePath) } catch (_: Exception) {}
+                    showImportFeedback = "すべてのスニペットを削除しました。"
+                    showClearAllDialog = false
+                }) { Text("はい") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearAllDialog = false }) { Text("いいえ") }
             }
         )
     }
@@ -393,7 +444,10 @@ fun SnippetEditDialog(
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "シンプルなコードスニペット管理"
+        title = "シンプルなコードスニペット管理",
+        icon = BitmapPainter(
+            useResource("snippetbutton.png") { loadImageBitmap(it) }
+        )
     ) {
         MaterialTheme(colorScheme = darkColorScheme()) {
             Surface(modifier = Modifier.fillMaxSize()) {
