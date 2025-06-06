@@ -8,8 +8,12 @@
 
 SnippetButton は、コードスニペットを効率的に管理するためのシンプルなデスクトップアプリケーションです。Jetpack Compose for Desktop を使用して構築されており、クロスプラットフォームで動作します。
 
+### プレビュー
+
+<img src="picture/すにぺと.gif" alt="アプリ プレビュー" width="600" />
+
 ### アプリケーションアイコン
-- `SnippetButton-icon.png` は生成AI（例：Midjourney）で作成しました。
+- `SnippetButton-icon.png` は生成AI（gemini2.5pro）で作成しました。
 
 ### 利用方法
 
@@ -54,6 +58,10 @@ SnippetButton は、コードスニペットを効率的に管理するための
 ### TL;DR
 
 SnippetButton is a simple desktop application for efficient code snippet management. It is built with Jetpack Compose for Desktop and runs cross-platform.
+
+### Preview
+
+<img src="picture/すにぺと.gif" alt="App Preview" width="600" />
 
 ### Icon
 
